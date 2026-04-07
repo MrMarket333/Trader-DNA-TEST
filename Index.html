@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trader DNA Assessment | MrMarket</title>
+    <style>
+        /* Mobile-First Base Styles */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 10px; }
+        .main-wrapper { max-width: 850px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        /* Access Screen Styling */
+        #access-screen { text-align: center; padding: 50px 20px; }
+        .access-box { border: 2px solid #3498db; padding: 20px; border-radius: 10px; background: #fff; display: inline-block; width: 100%; max-width: 400px; }
+        .access-box input { width: 80%; padding: 15px; margin: 15px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 1.2em; text-align: center; }
+        
+        /* Quiz Content (Hidden initially) */
+        #quiz-content { display: none; }
+
+        .tagline { text-align: center; font-style: italic; color: #5a7d9a; font-size: 1.1em; margin-bottom: 20px; }
+        .instructions-box { background-color: #eef6ff; border-left: 5px solid #3498db; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
+        .section-header { background: #34495e; color: white; padding: 12px; border-radius: 5px; margin-top: 25px; font-weight: bold; }
+        
+        /* Mobile-Friendly Question Rows */
+        .question-row { display: flex; flex-direction: column; padding: 15px 0; border-bottom: 1px solid #eee; }
+        .question-text { margin-bottom: 10px; font-weight: 500; }
+        .radio-group { display: flex; justify-content: space-between; max-width: 300px; }
+        .radio-group label { display: flex; flex-direction: column; align-items: center; font-size: 0.9em; cursor: pointer; }
+        input[type="radio"] { transform: scale(1.5); margin-bottom: 5px; }
+
+        button { width: 100%; padding: 18px; border-radius: 8px; border: none; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px; color: white; transition: 0.3s; }
+        #calc-btn { background: #27ae60; }
+        #print-btn { background: #3498db; display: none; }
+        #unlock-btn { background: #34495e; width: auto; padding: 15px 40px; }
+
+        /* Certificate Styling */
+        #result-area { display: none; padding-top: 20px; text-align: center; }
+        .certificate-border { border: 8px double #2c3e50; padding: 25px; background: #fffdf5 !important; width: 100%; max-width: 880px; margin: 0 auto; box-sizing: border-box; -webkit-print-color-adjust: exact; }
+        .cert-header { font-size: 1.6em; color: #b8860b; font-weight: bold; margin: 10px 0; }
+        .student-name { font-size: 1.8em; font-family: serif; border-bottom: 2px solid #333; display: inline-block; min-width: 250px; margin: 10px 0; }
+        .personality-type { font-size: 2em; color: #27ae60; font-weight: bold; margin: 10px 0; }
+        
+        /* Grid for traits (Stacks on Mobile) */
+        .grid-info { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; text-align: left; }
+        .info-box { background: white !important; border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
+        .score-bar { background: #f2f2f2 !important; padding: 10px; margin-top: 15px; font-size: 0.9em; font-weight: bold; border-radius: 4px; border: 1px solid #ddd; }
+
+        @media (min-width: 600px) {
+            .question-row { flex-direction: row; justify-content: space-between; align-items: center; }
+            .grid-info { flex-direction: row; }
+        }
+
+        @media print {
+            @page { size: landscape; margin: 0; }
+            body { background: white !important; padding: 0; margin: 0; }
+            .no-print { display: none !important; }
+            #result-area { display: block !important; width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; }
+            .certificate-border { width: 95%; border: 6px double #000; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div id="access-screen">
+        <img src="mrmarket2.png" width="200"><br><br>
+        <div class="access-box">
+            <h3>Enter Seminar Access Code</h3>
+            <input type="text" id="accessInput" placeholder="Code Here...">
+            <button id="unlock-btn" onclick="unlockQuiz()">Unlock Assessment</button>
+        </div>
+    </div>
+
+    <div id="quiz-content">
+        <div class="logo-top no-print" style="text-align:center;"><img src="mrmarket2.png" width="180"></div>
+        <h1 style="text-align:center;" class="no-print">TRADER DNA ASSESSMENT</h1>
+        <div class="tagline tagline-top no-print">"Know Who You Are Before You Trade the Market"</div>
+
+        <div class="instructions-box no-print">
+            <h3 style="margin-top:0;">Instructions for Students:</h3>
+            <p>Rate each statement from <strong>1 to 5</strong> based on how true it is for you.</p>
+            <p>1 = Strongly Disagree | 3 = Neutral | 5 = Strongly Agree</p>
+        </div>
+
+        <form id="dnaForm" class="no-print">
+            <div id="questions-container"></div>
+            <button type="button" id="calc-btn" onclick="calculateDNA()">Generate My Certificate</button>
+        </form>
+
+        <div id="result-area">
+            <div id="name-input-container" class="no-print" style="margin-bottom: 20px;">
+                <p><strong>Type your name and click Print (Landscape).</strong></p>
+                <input type="text" id="nameInput" oninput="document.getElementById('displayName').innerText=this.value" placeholder="YOUR FULL NAME" style="padding: 15px; width: 80%; max-width: 300px; text-align: center; border: 2px solid #3498db; border-radius: 5px;">
+            </div>
+
+            <div class="certificate-border">
+                <div style="display:flex; justify-content:center; gap:30px; align-items:center;">
+                    <img src="mrmarket2.png" width="110">
+                    <img src="2ndlogo.jpeg" width="110">
+                </div>
+                <div class="cert-header">CERTIFICATE OF COMPLETION</div>
+                <p>This certifies that</p>
+                <div class="student-name" id="displayName">Student Name</div>
+                <p>has identified their natural trading personality as:</p>
+                <div class="personality-type" id="p-name">The Developing Trader</div>
+                <p style="font-style:italic;">"Know who you are before you trade the market."</p>
+
+                <div class="grid-info">
+                    <div class="info-box"><strong>KEY TRAITS:</strong><br><span id="p-traits">Analyzing market habits.</span></div>
+                    <div class="info-box"><strong>BEST TRADING STYLE:</strong><br><span id="p-style">Education & Demo Practice.</span></div>
+                </div>
+
+                <div class="score-bar" id="p-scores"></div>
+                <div style="margin-top:10px;"><img src="mrmarket2.png" width="70"></div>
+            </div>
+            <button type="button" id="print-btn" class="no-print" onclick="window.print()">Print / Save PDF</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ACCESS CONTROL
+    const MASTER_CODE = "SEMINAR2026"; // CHANGE THIS CODE TO LOCK/UNLOCK
+
+    function unlockQuiz() {
+        const input = document.getElementById('accessInput').value;
+        if(input.toUpperCase() === MASTER_CODE.toUpperCase()) {
+            document.getElementById('access-screen').style.display = 'none';
+            document.getElementById('quiz-content').style.display = 'block';
+        } else {
+            alert("Incorrect access code. Please check with the seminar speaker.");
+        }
+    }
+
+    // QUIZ DATA
+    const sections = [
+        { id: "patience", title: "Section 1 — Patience & Timing", q: ["I am comfortable waiting for setups.", "I prefer quality over quantity.", "I don't feel pressure to trade.", "I can wait days for a trade.", "I plan entries carefully."] },
+        { id: "action", title: "Section 2 — Action & Speed", q: ["I enjoy fast movements.", "I feel energized by quick decisions.", "I prefer many small trades.", "I perform well under pressure.", "I get bored with no trades."] },
+        { id: "analysis", title: "Section 3 — Analytical Thinking", q: ["I enjoy studying charts.", "I like backtesting data.", "I prefer rule-based systems.", "I analyze market structure deeply.", "I trust logic over intuition."] },
+        { id: "macro", title: "Section 4 — Macro Thinking", q: ["I enjoy economic cycles.", "I prefer holding for larger moves.", "I am comfortable with long trades.", "I focus on overall trends.", "I believe profits come from cycles."] },
+        { id: "discipline", title: "Section 5 — Emotional Control", q: ["I remain calm after losses.", "I never revenge trade.", "I follow my plan strictly.", "Fear doesn't stop my entries.", "I accept losses as part of trading."] }
+    ];
+
+    const container = document.getElementById('questions-container');
+    sections.forEach(s => {
+        let html = `<div class="section-header">${s.title}</div>`;
+        s.q.forEach((text, i) => {
+            html += `<div class="question-row"><span class="question-text">${text}</span><div class="radio-group">
+                ${[1,2,3,4,5].map(v => `<label><input type="radio" name="${s.id}_${i}" value="${v}" ${v===3?'checked':''}>${v}</label>`).join('')}
+            </div></div>`;
+        });
+        container.innerHTML += html;
+    });
+
+    function calculateDNA() {
+        const data = new FormData(document.getElementById('dnaForm'));
+        let scores = { patience: 0, action: 0, analysis: 0, macro: 0, discipline: 0 };
+        for (let [key, val] of data.entries()) { scores[key.split('_')[0]] += parseInt(val); }
+
+        const profiles = {
+            patience: { name: "The Sniper Trader", traits: "High precision, selective entry.", style: "SMC, Breakouts." },
+            action: { name: "The Scalper", traits: "Quick reflexes, momentum focused.", style: "1m/5m Scalping." },
+            analysis: { name: "The Strategist", traits: "Data-driven, methodical.", style: "Rule-based mechanical systems." },
+            macro: { name: "The Macro Trader", traits: "Big picture vision, Cycles focused.", style: "Swing & Position trading." },
+            discipline: { name: "The Disciplined Professional", traits: "Resilient, consistent, focused.", style: "Trend following, Risk-managed execution." }
+        };
+
+        let topValue = Math.max(...Object.values(scores));
+        let topKey = Object.keys(scores).find(k => scores[k] === topValue);
+
+        if (topValue >= 18) {
+            document.getElementById('p-name').innerText = profiles[topKey].name;
+            document.getElementById('p-traits').innerText = profiles[topKey].traits;
+            document.getElementById('p-style').innerText = profiles[topKey].style;
+        }
+
+        document.getElementById('p-scores').innerText = `Scores — Patience: ${scores.patience} | Action: ${scores.action} | Analysis: ${scores.analysis} | Macro: ${scores.macro} | Discipline: ${scores.discipline}`;
+        document.getElementById('result-area').style.display = 'block';
+        document.getElementById('print-btn').style.display = 'block';
+        window.scrollTo({top: document.getElementById('result-area').offsetTop, behavior: 'smooth'});
+    }
+</script>
+</body>
+</html>
